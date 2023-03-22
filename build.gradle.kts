@@ -3,13 +3,13 @@ import org.gradle.internal.os.OperatingSystem
 import org.gradle.nativeplatform.platform.internal.DefaultNativePlatform
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
-group = "org.openrndr.template"
+group = "org.cr.asteroids"
 version = "0.4.0"
 
-val applicationMainClass = "TemplateProgramKt"
+val applicationMainClass = "MainKt"
 
 /**  ## additional ORX features to be added to this project */
-val orxFeatures = setOf<String>(
+val orxFeatures = setOf(
 //  "orx-boofcv",
     "orx-camera",
 //  "orx-chataigne",
@@ -29,7 +29,7 @@ val orxFeatures = setOf<String>(
 //  "orx-interval-tree",
 //  "orx-jumpflood",
 //  "orx-kdtree",
-//  "orx-keyframer",      
+//  "orx-keyframer",
 //  "orx-kinect-v1",
 //  "orx-kotlin-parser",
 //  "orx-mesh-generators",
@@ -52,7 +52,7 @@ val orxFeatures = setOf<String>(
     "orx-shapes",
 //  "orx-syphon",
 //  "orx-temporal-blur",
-//  "orx-tensorflow",    
+//  "orx-tensorflow",
 //  "orx-time-operators",
 //  "orx-timer",
 //  "orx-triangulation",
@@ -81,7 +81,7 @@ val openrndrFeatures = setOfNotNull(
 /** ## configure the type of logging this project uses */
 enum class Logging { NONE, SIMPLE, FULL }
 
-val applicationLogging = Logging.FULL
+val applicationLogging = Logging.SIMPLE
 
 // ------------------------------------------------------------------------------------------------------------------ //
 
@@ -112,9 +112,11 @@ dependencies {
         Logging.NONE -> {
             runtimeOnly(libs.slf4j.nop)
         }
+
         Logging.SIMPLE -> {
             runtimeOnly(libs.slf4j.simple)
         }
+
         Logging.FULL -> {
             runtimeOnly(libs.log4j.slf4j2)
             runtimeOnly(libs.log4j.core)
@@ -128,12 +130,18 @@ dependencies {
 
 // ------------------------------------------------------------------------------------------------------------------ //
 
+val javaVersion = "17"
+
 java {
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
+    val javaLanguageVersion = JavaLanguageVersion.of(javaVersion)
+    toolchain {
+        languageVersion.set(javaLanguageVersion)
+        vendor.set(JvmVendorSpec.AZUL)
+    }
 }
+
 tasks.withType<KotlinCompile> {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions.jvmTarget = javaVersion
 }
 
 // ------------------------------------------------------------------------------------------------------------------ //
@@ -165,6 +173,7 @@ tasks {
                         into("build/jpackage/openrndr-application/data")
                     }
                 }
+
                 OperatingSystem.MAC_OS -> {
                     copy {
                         from("data") {
@@ -233,11 +242,13 @@ class Openrndr {
             "aarch64", "arm-v8" -> "macos-arm64"
             else -> "macos"
         }
+
         OperatingSystem.LINUX -> when (val h = DefaultNativePlatform("current").architecture.name) {
             "x86-64" -> "linux-x64"
             "aarch64" -> "linux-arm64"
             else -> throw IllegalArgumentException("architecture not supported: $h")
         }
+
         else -> throw IllegalArgumentException("os not supported")
     }
 
@@ -280,6 +291,7 @@ class Openrndr {
         }
     }
 }
+
 val openrndr = Openrndr()
 
 if (properties["openrndr.tasks"] == "true") {
