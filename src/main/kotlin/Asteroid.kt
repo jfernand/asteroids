@@ -1,17 +1,20 @@
-
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
 import org.openrndr.extra.noise.random
 import org.openrndr.math.Vector2
+import org.openrndr.shape.bounds
 import org.openrndr.shape.contour
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
 
-class Asteroid(radius: Double) : Id, Renderer, IParticle by Particle(v(0.0, 0.0), random(0.0, 360.0), random(100.0, 500.0)) {
+class Asteroid(
+    private val radius: Double,
+) : Renderable, HasExtent, Particle<Int> by ParticleDelegate(PhaseState(zero, randomVec(100.0, 500.0))) {
     private val outline = generate(radius)
+    override val extent = outline.bounds
 
     override val id = Random.nextInt()
 
@@ -22,15 +25,25 @@ class Asteroid(radius: Double) : Id, Renderer, IParticle by Particle(v(0.0, 0.0)
             val worldScale = height / 10000.0
             stroke = ColorRGBa.WHITE
             fill = ColorRGBa.BLACK
-            translate(realPosition * worldScale)
+            translate(position * worldScale)
+            pushModel()
+            rotate(attitude)
             val c = contour {
                 moveTo(outline.first())
-                outline.drop(1).forEach {
-                    lineTo(it)
-                }
+                outline.drop(1)
+                    .forEach {
+                        lineTo(it)
+                    }
                 close()
             }
             contour(c)
+            circle(v(0.0, 0.0), 5.0)
+            strokeWeight = 0.1
+            fill = ColorRGBa.TRANSPARENT
+            circle(v(0.0, 0.0), radius)
+            rectangle(extent)
+            popModel()
+            lineSegment(0.0, 0.0, 10.0 , 0.0 )
         }
     }
 
@@ -45,28 +58,8 @@ class Asteroid(radius: Double) : Id, Renderer, IParticle by Particle(v(0.0, 0.0)
         return true
     }
 
-    override fun toString(): String = "A: r = ${realPosition.format("% 8.2f")} v= ${velocity.format("% 8.2f")}"
-
+    override fun toString(): String = "A: r = ${position.format("% 8.2f")} v= ${velocity.format("% 8.2f")} h = ${headingVector.format("% 5.2f")} a = ${attitudeVector.format("% 5.2f")}"
 }
-
-//class AsteroidRenderer(private val drawer: Drawer) {
-//    private val worldScale = drawer.height / 10000.0
-//
-//    fun draw(asteroid: Asteroid, state: State) =
-//        drawer.isolated {
-//            stroke = ColorRGBa.WHITE
-//            fill = ColorRGBa.BLACK
-//            drawer.translate(asteroid.realPosition * worldScale)
-//            val c = contour {
-//                moveTo(asteroid.outline.first())
-//                asteroid.outline.drop(1).forEach {
-//                    lineTo(it)
-//                }
-//                close()
-//            }
-//            drawer.contour(c)
-//        }
-//}
 
 fun main() {
     println(generate(10.0))
