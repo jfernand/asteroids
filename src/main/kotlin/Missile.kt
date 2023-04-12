@@ -15,7 +15,7 @@ class Missile(
 
         drawer.isolated {
             val worldScale = height / 10000.0
-            translate(phaseState.position * worldScale)
+            translate(position * worldScale)
             stroke = ColorRGBa.RED
             fill = ColorRGBa.BLACK
             rotate(direction)
@@ -24,7 +24,6 @@ class Missile(
             strokeWeight = 0.1
             if (state.showBoundaries)
                 rectangle(extent)
-
         }
     }
 

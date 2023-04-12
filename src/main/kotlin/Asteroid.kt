@@ -12,7 +12,7 @@ import kotlin.random.Random
 
 class Asteroid(
     private val radius: Double,
-) : Renderable, HasExtent, Particle<Int> by ParticleDelegate(PhaseState(zero, randomVec(100.0, 500.0))) {
+) : Renderable, HasExtent, Particle<Int> by ParticleDelegate(PhaseState(zero, randomVec(radius, 5*radius))) {
     private val outline = generate(radius)
     override val extent = outline.bounds
 
@@ -37,13 +37,17 @@ class Asteroid(
                 close()
             }
             contour(c)
-            circle(v(0.0, 0.0), 5.0)
+            if (state.showBoundaries)
+                circle(v(0.0, 0.0), 5.0)
             strokeWeight = 0.1
             fill = ColorRGBa.TRANSPARENT
-            circle(v(0.0, 0.0), radius)
-            rectangle(extent)
+            if (state.showBoundaries) {
+                circle(v(0.0, 0.0), radius)
+                rectangle(extent)
+            }
             popModel()
-            lineSegment(0.0, 0.0, 10.0 , 0.0 )
+            if (state.showBoundaries)
+                lineSegment(0.0, 0.0, 10.0, 0.0)
         }
     }
 
@@ -66,7 +70,7 @@ fun main() {
 }
 
 fun generate(radius: Double): List<Vector2> {
-    val segments = listOf(4, 5, 6, 7, 8, 9, 10, 11, 12).shuffled().first()
+    val segments = listOf(4, 5, 6, 7, 8, 9, 10, 11).shuffled().first()
     val sector = 2.0 * PI / segments
     return (0 until segments).map {
         val angle = sector * it

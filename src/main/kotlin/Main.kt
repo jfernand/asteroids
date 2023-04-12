@@ -20,7 +20,7 @@ fun main() = application {
         val state = State()
         state.addShip(Ship(width / 128.0))
 
-        state.addAll((0..10).map { Asteroid(random(10.0, 100.0)) }.toList())
+        state.addAll((0..100).map { Asteroid(random(10.0, 100.0)) }.toList())
         state.add(Instruments)
 
         keyboard.keyDown.listen { state.keyDown(it) }
@@ -38,6 +38,7 @@ fun main() = application {
             state.update()
             state.render(drawer)
             state.tock(seconds)
+            drawer.text((frameCount/seconds).toInt().toString(), 10.0, 10.0)
         }
     }
 }

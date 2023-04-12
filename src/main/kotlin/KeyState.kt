@@ -1,11 +1,5 @@
-import org.openrndr.CharacterEvent
-import org.openrndr.KEY_ARROW_DOWN
-import org.openrndr.KEY_ARROW_LEFT
-import org.openrndr.KEY_ARROW_RIGHT
-import org.openrndr.KEY_ARROW_UP
-import org.openrndr.KEY_ESCAPE
-import org.openrndr.KEY_SPACEBAR
-import org.openrndr.KeyEvent
+
+import org.openrndr.*
 import kotlin.system.exitProcess
 
 interface KeyState {
@@ -64,15 +58,5 @@ data class KeyStateDelegate(
             'd' -> showData = !showData
             else -> Unit
         }
-    }
-    override fun toString(): String {
-        var s = ""
-        if (turningLeft) s += "L"
-        if (turningRight) s += "R"
-        if (accelerating) s += "U"
-        if (decelerating) s += "D"
-        if (showBoundaries) s += "B"
-        if (firing) s += "S"
-        return s
     }
 }

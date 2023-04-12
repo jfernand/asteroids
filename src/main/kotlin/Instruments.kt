@@ -10,6 +10,7 @@ object Instruments : HasId<Int>, Renderable {
     override val id: Int = Random.nextInt()
 
     override fun render(drawer: Drawer, state: State) {
+        if (!state.showData) return
         drawer.isolated {
             writer {
                 box = Rectangle(height.toDouble(), 64.0, width.toDouble(), height.toDouble())

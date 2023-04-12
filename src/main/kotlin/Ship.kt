@@ -1,4 +1,3 @@
-
 import org.openrndr.color.ColorRGBa
 import org.openrndr.draw.Drawer
 import org.openrndr.draw.isolated
@@ -17,7 +16,7 @@ class Ship(
     var deltaV: Vector2 = zero
     fun fire(): Missile = Missile(phaseState.bumpSpeed(1000.0))
 
-    override fun update(state:State) {
+    override fun update(state: State) {
         state.process(state.getDeltaT())
         updatePhaseState(state.getDeltaT())
     }
@@ -38,23 +37,27 @@ class Ship(
 
     override fun render(drawer: Drawer, state: State) {
         drawer.isolated {
-            drawHull()
+            drawHull(state)
             if (state.accelerating) drawExhaust()
             if (state.accelerating) drawSecondaryExhaust()
             strokeWeight = 0.1
-            rectangle(extent)
+            if (state.showBoundaries)
+                rectangle(extent)
         }
     }
 
-    private fun Drawer.drawHull() {
+    private fun Drawer.drawHull(state: State) {
         fill = ColorRGBa.TRANSPARENT
         stroke = ColorRGBa.WHITE
         val worldScale = height / 10000.0
         translate(position * worldScale)
-        lineSegment(0.0, 0.0, 10 * headingVector.x, 10 * headingVector.y)
-        lineSegment(zero, 20.0 * deltaV)
+        if(state.showBoundaries) {
+            lineSegment(0.0, 0.0, 10 * headingVector.x, 10 * headingVector.y)
+            lineSegment(zero, 20.0 * deltaV)
+        }
         rotate(attitude)
-        lineSegment(0.0, 0.0, 10.0, 0.0)
+        if (state.showBoundaries)
+            lineSegment(0.0, 0.0, 10.0, 0.0)
         lineLoop(
             listOf(
                 v(-radius / 4, 0.0),
